@@ -63,6 +63,7 @@
             border-radius: 15px;
             text-align: center;
             box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.5);
+            z-index: 2;
         }
 
         .name-input label {
@@ -112,6 +113,7 @@
             padding: 15px;
             box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(10px);
+            z-index: 1;
         }
 
         .leaderboard {
@@ -204,6 +206,7 @@
             max-width: 300px;
             display: none;
             transition: opacity 0.3s;
+            z-index: 1;
         }
 
         #instructions h3 {
@@ -213,6 +216,58 @@
 
         #instructions p {
             margin: 5px 0;
+        }
+
+        .game-over-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.5);
+            border: 2px solid #FFD700;
+            color: white;
+            display: none;
+            z-index: 3;
+        }
+
+        .game-over-popup h2 {
+            margin: 0;
+            font-size: 28px;
+            color: #FFD700;
+        }
+
+        .game-over-popup p {
+            margin: 15px 0;
+            font-size: 18px;
+        }
+
+        .game-over-popup .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .game-over-popup button {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .game-over-popup button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
         }
     </style>
 </head>
@@ -258,6 +313,15 @@
         <p>احذر من الاصطدام بالعقبات، فهي تنهي اللعبة!</p>
     </div>
 
+    <div class="game-over-popup" id="gameOverPopup">
+        <h2>لقد خسرت!</h2>
+        <p id="gameOverMessage"></p>
+        <div class="buttons">
+            <button id="retryBtn">إعادة المحاولة</button>
+            <button id="cancelBtn">إلغاء</button>
+        </div>
+    </div>
+
     <canvas id="gameCanvas" width="800" height="600"></canvas>
 
     <audio id="collisionSound" src="collision.mp3"></audio>
@@ -278,6 +342,10 @@
         const toggleMusicBtn = document.getElementById("toggleMusicBtn");
         const backgroundMusic = document.getElementById("backgroundMusic");
         const toggleLanguageBtn = document.getElementById("toggleLanguageBtn");
+        const gameOverPopup = document.getElementById("gameOverPopup");
+        const gameOverMessage = document.getElementById("gameOverMessage");
+        const retryBtn = document.getElementById("retryBtn");
+        const cancelBtn = document.getElementById("cancelBtn");
 
         const ballRadius = 20;
         const ballSpeed = 5;
@@ -325,7 +393,10 @@
             howToPlay: "كيفية اللعب:",
             moveBall: "استخدم مفاتيح الأسهم أو WASD لتحريك الكرة وتجنب العقبات.",
             collectPoints: "اجمع النقاط عن طريق تجاوز العقبات.",
-            avoidObstacles: "احذر من الاصطدام بالعقبات، فهي تنهي اللعبة!"
+            avoidObstacles: "احذر من الاصطدام بالعقبات، فهي تنهي اللعبة!",
+            gameOver: "لقد خسرت!",
+            retry: "إعادة المحاولة",
+            cancel: "إلغاء"
         };
 
         const englishTexts = {
@@ -346,7 +417,10 @@
             howToPlay: "How to Play:",
             moveBall: "Use arrow keys or WASD to move the ball and avoid obstacles.",
             collectPoints: "Collect points by passing obstacles.",
-            avoidObstacles: "Avoid hitting obstacles, they will end the game!"
+            avoidObstacles: "Avoid hitting obstacles, they will end the game!",
+            gameOver: "You Lost!",
+            retry: "Retry",
+            cancel: "Cancel"
         };
 
         let isEnglish = false;
@@ -372,6 +446,9 @@
             document.querySelector("#instructions p:nth-child(2)").textContent = texts.moveBall;
             document.querySelector("#instructions p:nth-child(3)").textContent = texts.collectPoints;
             document.querySelector("#instructions p:nth-child(4)").textContent = texts.avoidObstacles;
+            document.querySelector("#gameOverPopup h2").textContent = texts.gameOver;
+            document.getElementById("retryBtn").textContent = texts.retry;
+            document.getElementById("cancelBtn").textContent = texts.cancel;
 
             toggleLanguageBtn.textContent = isEnglish ? "عربي" : "English";
         }
@@ -393,6 +470,7 @@
             scoreDisplay.textContent = score;
             gameTimer.textContent = countdown;
             isGameOver = false;
+            gameOverPopup.style.display = "none";
         }
 
         function createObstacle() {
@@ -475,13 +553,9 @@
             leaderboard = leaderboard.slice(0, 3);
             localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
             updateLeaderboard();
-            setTimeout(() => {
-                let retry = confirm(`${playerName}، لقد خسرت اللعبة! لقد حققت ${score} نقاط خلال ${timeElapsed} ثانية. هل تريد إعادة المحاولة؟`);
-                if (retry) {
-                    resetGame();
-                    draw();
-                }
-            }, 100);
+
+            gameOverMessage.textContent = `${playerName}، لقد خسرت اللعبة! لقد حققت ${score} نقاط خلال ${timeElapsed} ثانية.`;
+            gameOverPopup.style.display = "block";
         }
 
         function winGame() {
@@ -602,6 +676,15 @@
                 backgroundMusic.pause();
                 toggleMusicBtn.textContent = isEnglish ? "Play Music" : "تشغيل الموسيقى";
             }
+        });
+
+        retryBtn.addEventListener("click", function() {
+            resetGame();
+            draw();
+        });
+
+        cancelBtn.addEventListener("click", function() {
+            gameOverPopup.style.display = "none";
         });
 
         startGameBtn.addEventListener("click", function() {
