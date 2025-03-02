@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKA - لعبة المتاهة</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            font-family: 'Tajawal', sans-serif;
+            color: white;
+            overflow: hidden;
+        }
+
+        canvas {
+            background: rgba(255, 255, 255, 0.1);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .design-text {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .score-container {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: #2ad72a;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .name-input {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .name-input label {
+            font-size: 24px;
+            color: #FFD700;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .name-input input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #FFD700;
+            border-radius: 8px;
+            padding: 12px;
+            color: white;
+            font-size: 18px;
+            width: 80%;
+            margin-bottom: 15px;
+        }
+
+        .name-input button {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .name-input button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .side-panel {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            width: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .leaderboard {
+            margin-bottom: 20px;
+        }
+
+        .leaderboard h3 {
+            margin: 0;
+            font-size: 22px;
+            text-align: center;
+            color: #FFD700;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 16px;
+        }
+
+        th {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        td {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        td:nth-child(1) {
+            background: linear-gradient(45deg, #FF5733, #FF8C42);
+        }
+
+        td:nth-child(2) {
+            background: linear-gradient(45deg, #0aa162, #12d885);
+        }
+
+        td:nth-child(3) {
+            background: linear-gradient(45deg, #3357FF, #428CFF);
+        }
+
+        td:nth-child(4) {
+            background: linear-gradient(45deg, #e10e0e, #d60f0f);
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .button-container button {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .button-container button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        #instructions {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 300px;
+            display: none;
+            transition: opacity 0.3s;
+        }
+
+        #instructions h3 {
+            margin: 0;
+            color: #FFD700;
+        }
+
+        #instructions p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="design-text">Salah Aghassy</div>
+    <div class="score-container">النقاط: <span id="score">0</span> | الوقت: <span id="gameTimer">120</span></div>
+    <div class="name-input" id="nameInputDiv">
+        <label for="playerNameInput">أدخل اسمك:</label>
+        <input type="text" id="playerNameInput" placeholder="اسم اللاعب">
+        <button id="startGameBtn">🚀 ابدأ اللعبة</button>
+    </div>
+
+    <div class="side-panel">
+        <div class="leaderboard">
+            <h3>🏆 جدول الصدارة</h3>
+            <table id="leaderboardTable">
+                <thead>
+                    <tr>
+                        <th>الترتيب</th>
+                        <th>الاسم</th>
+                        <th>النقاط</th>
+                        <th>المحاولات</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardList"></tbody>
+            </table>
+        </div>
+
+        <div class="button-container">
+            <button id="resetGameBtn">🔄 إعادة تعيين</button>
+            <button id="changeColorBtn">🎨 تغيير اللون</button>
+            <button id="shareScoreBtn">📤 مشاركة النتيجة</button>
+            <button id="toggleInstructionsBtn">📖 التعليمات</button>
+            <button id="toggleMusicBtn">🎵 الموسيقى</button>
+            <button id="toggleLanguageBtn">English</button>
+        </div>
+    </div>
+
+    <div id="instructions">
+        <h3>كيفية اللعب:</h3>
+        <p>استخدم مفاتيح الأسهم أو WASD لتحريك الكرة وتجنب العقبات.</p>
+        <p>اجمع النقاط عن طريق تجاوز العقبات.</p>
+        <p>احذر من الاصطدام بالعقبات، فهي تنهي اللعبة!</p>
+    </div>
+
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <audio id="collisionSound" src="collision.mp3"></audio>
+    <audio id="successSound" src="success.mp3"></audio>
+    <audio id="backgroundMusic" src="background-music.mp3" loop></audio>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreDisplay = document.getElementById("score");
+        const playerNameInput = document.getElementById("playerNameInput");
+        const startGameBtn = document.getElementById("startGameBtn");
+        const nameInputDiv = document.getElementById("nameInputDiv");
+        const leaderboardList = document.getElementById("leaderboardList");
+        const gameTimer = document.getElementById("gameTimer");
+        const instructionsDiv = document.getElementById("instructions");
+        const toggleInstructionsBtn = document.getElementById("toggleInstructionsBtn");
+        const toggleMusicBtn = document.getElementById("toggleMusicBtn");
+        const backgroundMusic = document.getElementById("backgroundMusic");
+        const toggleLanguageBtn = document.getElementById("toggleLanguageBtn");
+
+        const ballRadius = 20;
+        const ballSpeed = 5;
+        let ballX, ballY, dx, dy, obstacles, powerUps, score, obstacleSpeed, spawnRate, timeElapsed, countdown;
+        let isGameOver = false;
+        let playerName = "";
+        let attempts = 0;
+        let difficulty = "easy";
+
+        let highScore = localStorage.getItem("highScore") || 0;
+        let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+
+        const ballImage = new Image();
+        ballImage.src = "ball.png";
+
+        const obstacleImages = {
+            rock: new Image(),
+            fier: new Image(),
+            rot: new Image(),
+            fels: new Image(),
+            boom: new Image()
+        };
+
+        obstacleImages.rock.src = "rock.png";
+        obstacleImages.fier.src = "fier.png";
+        obstacleImages.rot.src = "rot.png";
+        obstacleImages.fels.src = "fels.png";
+        obstacleImages.boom.src = "boom.png";
+
+        const arabicTexts = {
+            score: "النقاط",
+            time: "الوقت",
+            enterName: "أدخل اسمك:",
+            startGame: "🚀 ابدأ اللعبة",
+            leaderboard: "🏆 جدول الصدارة",
+            rank: "الترتيب",
+            name: "الاسم",
+            points: "النقاط",
+            attempts: "المحاولات",
+            reset: "🔄 إعادة تعيين",
+            changeColor: "🎨 تغيير اللون",
+            shareScore: "📤 مشاركة النتيجة",
+            instructions: "📖 التعليمات",
+            music: "🎵 الموسيقى",
+            howToPlay: "كيفية اللعب:",
+            moveBall: "استخدم مفاتيح الأسهم أو WASD لتحريك الكرة وتجنب العقبات.",
+            collectPoints: "اجمع النقاط عن طريق تجاوز العقبات.",
+            avoidObstacles: "احذر من الاصطدام بالعقبات، فهي تنهي اللعبة!"
+        };
+
+        const englishTexts = {
+            score: "Score",
+            time: "Time",
+            enterName: "Enter your name:",
+            startGame: "🚀 Start Game",
+            leaderboard: "🏆 Leaderboard",
+            rank: "Rank",
+            name: "Name",
+            points: "Points",
+            attempts: "Attempts",
+            reset: "🔄 Reset",
+            changeColor: "🎨 Change Color",
+            shareScore: "📤 Share Score",
+            instructions: "📖 Instructions",
+            music: "🎵 Music",
+            howToPlay: "How to Play:",
+            moveBall: "Use arrow keys or WASD to move the ball and avoid obstacles.",
+            collectPoints: "Collect points by passing obstacles.",
+            avoidObstacles: "Avoid hitting obstacles, they will end the game!"
+        };
+
+        let isEnglish = false;
+
+        function toggleLanguage() {
+            isEnglish = !isEnglish;
+            const texts = isEnglish ? englishTexts : arabicTexts;
+
+            document.querySelector(".score-container").innerHTML = `${texts.score}: <span id="score">0</span> | ${texts.time}: <span id="gameTimer">120</span>`;
+            document.querySelector(".name-input label").textContent = texts.enterName;
+            document.getElementById("startGameBtn").textContent = texts.startGame;
+            document.querySelector(".leaderboard h3").textContent = texts.leaderboard;
+            document.querySelector("#leaderboardTable th:nth-child(1)").textContent = texts.rank;
+            document.querySelector("#leaderboardTable th:nth-child(2)").textContent = texts.name;
+            document.querySelector("#leaderboardTable th:nth-child(3)").textContent = texts.points;
+            document.querySelector("#leaderboardTable th:nth-child(4)").textContent = texts.attempts;
+            document.getElementById("resetGameBtn").textContent = texts.reset;
+            document.getElementById("changeColorBtn").textContent = texts.changeColor;
+            document.getElementById("shareScoreBtn").textContent = texts.shareScore;
+            document.getElementById("toggleInstructionsBtn").textContent = texts.instructions;
+            document.getElementById("toggleMusicBtn").textContent = texts.music;
+            document.querySelector("#instructions h3").textContent = texts.howToPlay;
+            document.querySelector("#instructions p:nth-child(2)").textContent = texts.moveBall;
+            document.querySelector("#instructions p:nth-child(3)").textContent = texts.collectPoints;
+            document.querySelector("#instructions p:nth-child(4)").textContent = texts.avoidObstacles;
+
+            toggleLanguageBtn.textContent = isEnglish ? "عربي" : "English";
+        }
+
+        toggleLanguageBtn.addEventListener("click", toggleLanguage);
+
+        function resetGame() {
+            ballX = canvas.width / 2;
+            ballY = canvas.height - ballRadius - 30;
+            dx = 0;
+            dy = 0;
+            obstacles = [];
+            powerUps = [];
+            score = 0;
+            obstacleSpeed = difficulty === "easy" ? 2 : difficulty === "medium" ? 4 : 6;
+            spawnRate = difficulty === "easy" ? 0.03 : difficulty === "medium" ? 0.05 : 0.08;
+            timeElapsed = 0;
+            countdown = 120;
+            scoreDisplay.textContent = score;
+            gameTimer.textContent = countdown;
+            isGameOver = false;
+        }
+
+        function createObstacle() {
+            const size = Math.random() * 60 + 30;
+            const x = Math.random() * (canvas.width - size);
+            const y = -size;
+            const types = Object.keys(obstacleImages);
+            const type = types[Math.floor(Math.random() * types.length)];
+            obstacles.push({ x, y, width: size, height: size, type: type });
+        }
+
+        function drawBall() {
+            ctx.drawImage(ballImage, ballX - ballRadius, ballY - ballRadius, ballRadius * 2, ballRadius * 2);
+        }
+
+        function drawObstacles() {
+            obstacles.forEach(obstacle => {
+                const img = obstacleImages[obstacle.type];
+                ctx.drawImage(img, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            });
+        }
+
+        function moveObstacles() {
+            obstacles.forEach(obstacle => {
+                obstacle.y += obstacleSpeed;
+                if (obstacle.y > canvas.height) {
+                    obstacles.shift();
+                    score++;
+                    document.getElementById("successSound").play();
+                }
+            });
+        }
+
+        function checkCollision() {
+            obstacles.forEach(obstacle => {
+                const ballLeft = ballX - ballRadius;
+                const ballRight = ballX + ballRadius;
+                const ballTop = ballY - ballRadius;
+                const ballBottom = ballY + ballRadius;
+
+                const obstacleLeft = obstacle.x;
+                const obstacleRight = obstacle.x + obstacle.width;
+                const obstacleTop = obstacle.y;
+                const obstacleBottom = obstacle.y + obstacle.height;
+
+                if (
+                    ballRight > obstacleLeft &&
+                    ballLeft < obstacleRight &&
+                    ballBottom > obstacleTop &&
+                    ballTop < obstacleBottom
+                ) {
+                    endGame();
+                }
+            });
+        }
+
+        function updateScore() {
+            scoreDisplay.textContent = score;
+        }
+
+        function moveBall() {
+            ballX += dx;
+            ballY += dy;
+            if (ballX + ballRadius > canvas.width) ballX = canvas.width - ballRadius;
+            if (ballX - ballRadius < 0) ballX = ballRadius;
+            if (ballY + ballRadius > canvas.height) ballY = canvas.height - ballRadius;
+            if (ballY - ballRadius < 0) ballY = ballRadius;
+        }
+
+        function endGame() {
+            isGameOver = true;
+            attempts++;
+            document.getElementById("collisionSound").play();
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem("highScore", highScore);
+            }
+            leaderboard.push({ name: playerName, score: score, time: timeElapsed, attempts: attempts });
+            leaderboard.sort((a, b) => b.score - a.score);
+            leaderboard = leaderboard.slice(0, 3);
+            localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+            updateLeaderboard();
+            setTimeout(() => {
+                let retry = confirm(`${playerName}، لقد خسرت اللعبة! لقد حققت ${score} نقاط خلال ${timeElapsed} ثانية. هل تريد إعادة المحاولة؟`);
+                if (retry) {
+                    resetGame();
+                    draw();
+                }
+            }, 100);
+        }
+
+        function winGame() {
+            isGameOver = true;
+            alert(`${playerName}، لقد ربحت اللعبة! لقد نجحت في البقاء لمدة 120 ثانية.`);
+            resetGame();
+        }
+
+        function updateLeaderboard() {
+            leaderboardList.innerHTML = '';
+            leaderboard.forEach((player, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${player.name}</td>
+                    <td>${player.score}</td>
+                    <td>${player.attempts}</td>
+                `;
+                leaderboardList.appendChild(row);
+            });
+        }
+
+        document.addEventListener("keydown", function(event) {
+            if (!isGameOver) {
+                switch (event.key) {
+                    case "ArrowUp":
+                    case "w":
+                        dy = -ballSpeed;
+                        dx = 0;
+                        break;
+                    case "ArrowDown":
+                    case "s":
+                        dy = ballSpeed;
+                        dx = 0;
+                        break;
+                    case "ArrowLeft":
+                    case "a":
+                        dx = -ballSpeed;
+                        dy = 0;
+                        break;
+                    case "ArrowRight":
+                    case "d":
+                        dx = ballSpeed;
+                        dy = 0;
+                        break;
+                }
+            }
+        });
+
+        document.addEventListener("keyup", function() {
+            if (!isGameOver) {
+                dx = 0;
+                dy = 0;
+            }
+        });
+
+        setInterval(() => {
+            if (!isGameOver) {
+                obstacleSpeed += 0.01;
+                spawnRate += 0.001;
+                timeElapsed++;
+                countdown--;
+                gameTimer.textContent = countdown;
+                if (countdown <= 0) {
+                    winGame();
+                }
+            }
+        }, 1000);
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBall();
+            drawObstacles();
+            moveObstacles();
+            moveBall();
+            checkCollision();
+            updateScore();
+            if (Math.random() < spawnRate) createObstacle();
+            if (!isGameOver) {
+                requestAnimationFrame(draw);
+            }
+        }
+
+        document.getElementById("changeColorBtn").addEventListener("click", function() {
+            const colors = ["#1e3c72", "#2a5298", "#FF5733", "#33FF57", "#3357FF", "#FFD700", "#6A0572"];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            document.body.style.background = randomColor;
+        });
+
+        document.getElementById("resetGameBtn").addEventListener("click", function() {
+            nameInputDiv.style.display = "block";
+            playerNameInput.value = "";
+            playerNameInput.focus();
+            score = 0;
+            timeElapsed = 0;
+            attempts = 0;
+            scoreDisplay.textContent = score;
+            gameTimer.textContent = 120;
+            isGameOver = true;
+            updateLeaderboard();
+        });
+
+        document.getElementById("shareScoreBtn").addEventListener("click", function() {
+            const shareText = `لقد حصلت على ${score} نقاط في اللعبة! جربها الآن: ${window.location.href}`;
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+            window.open(twitterUrl, "_blank");
+        });
+
+        toggleInstructionsBtn.addEventListener("click", function() {
+            instructionsDiv.style.display = instructionsDiv.style.display === "none" ? "block" : "none";
+        });
+
+        toggleMusicBtn.addEventListener("click", function() {
+            if (backgroundMusic.paused) {
+                backgroundMusic.play();
+                toggleMusicBtn.textContent = isEnglish ? "Stop Music" : "إيقاف الموسيقى";
+            } else {
+                backgroundMusic.pause();
+                toggleMusicBtn.textContent = isEnglish ? "Play Music" : "تشغيل الموسيقى";
+            }
+        });
+
+        startGameBtn.addEventListener("click", function() {
+            playerName = playerNameInput.value.trim();
+            if (playerName) {
+                nameInputDiv.style.display = "none";
+                resetGame();
+                draw();
+            } else {
+                alert(isEnglish ? "Please enter your name!" : "من فضلك أدخل اسمك!");
+            }
+        });
+    </script>
+</body>
+</html>
